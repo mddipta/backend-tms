@@ -35,9 +35,9 @@ public class CompanyController {
     final private CompanyService service;
 
     @GetMapping(value = "/companies", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WebResponse<Page<CompanyResponse>>> findAll(PagingRequest pagingRequest,
+    public ResponseEntity<WebResponse<List<CompanyResponse>>> findAll(PagingRequest pagingRequest,
             @RequestParam(required = false) String inquiry) {
-        return ResponseEntity.ok(ResponseHelper.ok(service.getAll(pagingRequest, inquiry)));
+        return ResponseEntity.ok(ResponseHelper.ok(pagingRequest, service.getAll(pagingRequest, inquiry)));
     }
 
     @GetMapping(value = "/company/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

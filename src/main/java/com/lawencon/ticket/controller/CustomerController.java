@@ -40,9 +40,20 @@ public class CustomerController {
         return ResponseEntity.ok(ResponseHelper.ok(customerService.getAll()));
     }
 
+    @GetMapping(value = "/customers/pic/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WebResponse<List<CustomerResponse>>> findByPicId(
+            @PathVariable String id) {
+        return ResponseEntity.ok(ResponseHelper.ok(customerService.getByPicId(id)));
+    }
+
     @GetMapping(value = "/customer/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WebResponse<CustomerResponse>> findById(@PathVariable String id) {
         return ResponseEntity.ok(ResponseHelper.ok(customerService.findById(id)));
+    }
+
+    @GetMapping(value = "/customers/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WebResponse<CustomerResponse>> findByUserId(@PathVariable String id) {
+        return ResponseEntity.ok(ResponseHelper.ok(customerService.getByUserId(id)));
     }
 
     @PostMapping(value = "/customer", consumes = MediaType.APPLICATION_JSON_VALUE)

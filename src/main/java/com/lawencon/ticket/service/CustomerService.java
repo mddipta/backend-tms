@@ -18,9 +18,13 @@ public interface CustomerService {
 
     void delete(String id);
 
+    CustomerResponse getByUserId(String id);
+
     CustomerResponse findById(String id);
 
     Customer findEntityById(String customerId);
 
     File getReport() throws JRException;
+
+    List<CustomerResponse> getByPicId(String id);
 }

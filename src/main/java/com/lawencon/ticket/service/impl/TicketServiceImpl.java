@@ -189,7 +189,8 @@ public class TicketServiceImpl implements TicketService {
         parameters.put("subTitle", "Daftar Tiket");
         parameters.put("data", dataSource.cloneDataSource());
 
-        InputStream filePath = getClass().getClassLoader().getResourceAsStream("templates/ticket.jrxml");
+        InputStream filePath =
+                getClass().getClassLoader().getResourceAsStream("templates/ticket.jrxml");
         JasperReport report = JasperCompileManager.compileReport(filePath);
 
         JasperPrint print = JasperFillManager.fillReport(report, parameters, dataSource);
@@ -222,6 +223,19 @@ public class TicketServiceImpl implements TicketService {
         if (!repository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @Override
+    public List<TicketResponse> getByCustomerId(String id) {
+        List<TicketResponse> responses = new ArrayList<>();
+        List<Ticket> tickets = repository.findByCustomerId(id);
+        for (Ticket ticket : tickets) {
+            TicketTransaction ticketTransaction =
+                    ticketTransactionService.getLastByTicketId(ticket.getId());
+            TicketResponse response = mapToResponse(ticket, ticketTransaction);
+            responses.add(response);
+        }
+        return responses;
     }
 
 

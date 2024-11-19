@@ -114,6 +114,15 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public CustomerResponse getByUserId(String id) {
+        Optional<Customer> customer = repository.findByUserId(id);
+        if (customer.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User Id not found");
+        }
+        return mapToRespoonse(customer.get());
+    }
+
+    @Override
     public CustomerResponse findById(String id) {
         validateUserIdExist(id);
         Optional<Customer> customer = repository.findById(id);
@@ -135,7 +144,8 @@ public class CustomerServiceImpl implements CustomerService {
         file.setFileName("Daftar Customer");
         file.setFileExt(".pdf");
 
-        List<CustomerResponse> reportData = repository.findAll().stream().map(this::mapToRespoonse).toList();
+        List<CustomerResponse> reportData =
+                repository.findAll().stream().map(this::mapToRespoonse).toList();
 
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(reportData);
 
@@ -143,7 +153,8 @@ public class CustomerServiceImpl implements CustomerService {
         parameters.put("customer", "Daftar Customer Perusahaan A");
         parameters.put("tableData", dataSource.cloneDataSource());
 
-        InputStream filePath = getClass().getClassLoader().getResourceAsStream("templates/customer.jrxml");
+        InputStream filePath =
+                getClass().getClassLoader().getResourceAsStream("templates/customer.jrxml");
         JasperReport report = JasperCompileManager.compileReport(filePath);
 
         JasperPrint print = JasperFillManager.fillReport(report, parameters, dataSource);
@@ -152,6 +163,17 @@ public class CustomerServiceImpl implements CustomerService {
         file.setData(bytes);
 
         return file;
+    }
+
+    @Override
+    public List<CustomerResponse> getByPicId(String id) {
+        List<CustomerResponse> responses = new ArrayList<>();
+        List<Customer> customers = repository.findByPicUser_Id(id);
+        for (Customer customer : customers) {
+            CustomerResponse response = mapToRespoonse(customer);
+            responses.add(response);
+        }
+        return responses;
     }
 
     private CustomerResponse mapToRespoonse(Customer customer) {

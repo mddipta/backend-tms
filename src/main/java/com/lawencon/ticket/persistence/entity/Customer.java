@@ -11,6 +11,7 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
+@SuppressWarnings("deprecation")
 @Entity
 @Table(name = "tb_customers",
         uniqueConstraints = {

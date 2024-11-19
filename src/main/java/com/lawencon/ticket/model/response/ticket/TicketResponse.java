@@ -23,4 +23,5 @@ public class TicketResponse {
     private String pic;
     private String developer;
     private Long version;
+    private String description;
 }

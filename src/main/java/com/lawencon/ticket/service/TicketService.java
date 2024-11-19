@@ -18,6 +18,8 @@ public interface TicketService {
 
     List<TicketResponse> getByUserId(String id);
 
+    List<TicketResponse> getByUser(String id);
+
     List<TicketResponse> getByCustomerId(String id);
 
     TicketResponse getById(String id);

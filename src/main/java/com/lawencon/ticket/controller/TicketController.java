@@ -44,6 +44,11 @@ public class TicketController {
         return ResponseEntity.ok(ResponseHelper.ok(ticketService.getByCustomerId(id)));
     }
 
+    @GetMapping(value = "/tickets/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WebResponse<List<TicketResponse>>> findByUser(@PathVariable String id) {
+        return ResponseEntity.ok(ResponseHelper.ok(ticketService.getByUser(id)));
+    }
+
     @PostMapping(value = "/ticket", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> add(@Valid @RequestBody CreateTicketRequest request) {
         ticketService.create(request);
@@ -56,7 +61,7 @@ public class TicketController {
         return ResponseEntity.ok("Success");
     }
 
-    @GetMapping(value = "/tickets/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/tickets/developer/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WebResponse<List<TicketResponse>>> findByUserId(@PathVariable String id) {
         return ResponseEntity.ok(ResponseHelper.ok(ticketService.getByUserId(id)));
     }

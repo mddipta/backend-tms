@@ -19,6 +19,7 @@ import com.lawencon.ticket.model.request.ticket.CreateTicketRequest;
 import com.lawencon.ticket.model.request.ticket.UpdateTicketRequest;
 import com.lawencon.ticket.model.request.transaction.CreateTicketTransactionRequest;
 import com.lawencon.ticket.model.response.ticket.TicketResponse;
+import com.lawencon.ticket.model.response.user.UserResponse;
 import com.lawencon.ticket.persistence.entity.Customer;
 import com.lawencon.ticket.persistence.entity.PriorityTicketStatus;
 import com.lawencon.ticket.persistence.entity.Ticket;
@@ -28,6 +29,7 @@ import com.lawencon.ticket.service.CustomerService;
 import com.lawencon.ticket.service.PriorityTicketStatusService;
 import com.lawencon.ticket.service.TicketService;
 import com.lawencon.ticket.service.TicketTransactionService;
+import com.lawencon.ticket.service.UserService;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -38,6 +40,7 @@ public class TicketServiceImpl implements TicketService {
     private final PriorityTicketStatusService priorityTicketStatusService;
     private final TicketTransactionService ticketTransactionService;
     private final CustomerService customerService;
+    private final UserService userService;
 
     private final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private final int INVOICE_LENGTH = 5;
@@ -140,6 +143,7 @@ public class TicketServiceImpl implements TicketService {
         return responses;
     }
 
+
     @Override
     public TicketResponse getById(String id) {
         validateExistId(id);
@@ -205,6 +209,7 @@ public class TicketServiceImpl implements TicketService {
         TicketResponse response = new TicketResponse();
         response.setPriorityTicket(ticket.getPriorityTicketStatus().getCode());
         response.setStatus(ticketTransaction.getTicketStatus().getCode());
+        response.setStatusName(ticketTransaction.getTicketStatus().getName());
         response.setPic(ticket.getCustomer().getPicUser().getName());
         response.setDate(ticket.getDateTicket());
 
@@ -236,6 +241,54 @@ public class TicketServiceImpl implements TicketService {
             responses.add(response);
         }
         return responses;
+    }
+
+    @Override
+    public List<TicketResponse> getByUser(String id) {
+        // Check role user
+        UserResponse user = userService.getById(id);
+        if (user.getRole().equals("CUS")) {
+            CustomerResponse customerResponse = customerService.getByUserId(id);
+            String customerId = customerResponse.getId();
+
+            List<Ticket> tickets = repository.findByCustomerId(customerId);
+            List<TicketResponse> responses = new ArrayList<>();
+            for (Ticket ticket : tickets) {
+                TicketTransaction ticketTransaction =
+                        ticketTransactionService.getLastByTicketId(ticket.getId());
+                TicketResponse response = mapToResponse(ticket, ticketTransaction);
+                responses.add(response);
+            }
+
+            return responses;
+        } else if (user.getRole().equals("DEV")) {
+            List<Ticket> tickets = repository.findByUserId(id);
+            List<TicketResponse> responses = new ArrayList<>();
+            for (Ticket ticket : tickets) {
+                TicketTransaction ticketTransaction =
+                        ticketTransactionService.getLastByTicketId(ticket.getId());
+                TicketResponse response = mapToResponse(ticket, ticketTransaction);
+                responses.add(response);
+            }
+
+            return responses;
+        } else if (user.getRole().equals("PIC")) {
+            List<CustomerResponse> customerResponses = customerService.getByPicId(id);
+            List<TicketResponse> responses = new ArrayList<>();
+            for (CustomerResponse customerResponse : customerResponses) {
+                List<Ticket> tickets = repository.findByCustomerId(customerResponse.getId());
+                for (Ticket ticket : tickets) {
+                    TicketTransaction ticketTransaction =
+                            ticketTransactionService.getLastByTicketId(ticket.getId());
+                    TicketResponse response = mapToResponse(ticket, ticketTransaction);
+                    responses.add(response);
+                }
+            }
+
+            return responses;
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 
 

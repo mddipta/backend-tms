@@ -19,6 +19,7 @@ public class TicketResponse {
     private LocalDate date;
     private String priorityTicket;
     private String status;
+    private String statusName;
     private String pic;
     private String developer;
     private Long version;

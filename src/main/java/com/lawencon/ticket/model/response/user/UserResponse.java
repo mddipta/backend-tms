@@ -18,4 +18,5 @@ public class UserResponse {
     private Boolean isActive;
     private Long version;
     private String roleName;
+    private String roleId;
 }

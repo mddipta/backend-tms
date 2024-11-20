@@ -97,10 +97,21 @@ public class UserServiceImpl implements UserService {
             validateUsernameExist(request.getUsername());
         }
 
+        if (!request.getEmail().equals(user.getEmail())) {
+            validateEmailExist(request.getEmail());
+        }
+
+        if (!request.getVersion().equals(user.getVersion())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Version not match");
+        }
+
+        if (!request.getPassword().equals(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
         validateIdExist(request.getId());
 
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
         user.setEmail(request.getEmail());
         user.setName(request.getName());
         user.setIsActive(request.getIsActive());
@@ -163,6 +174,7 @@ public class UserServiceImpl implements UserService {
         UserResponse response = new UserResponse();
         response.setRole(user.getRole().getCode());
         response.setRoleName(user.getRole().getName());
+        response.setRoleId(user.getRole().getId());
         BeanUtils.copyProperties(user, response);
         return response;
     }

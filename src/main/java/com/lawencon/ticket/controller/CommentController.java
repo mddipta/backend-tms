@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.lawencon.ticket.helper.ResponseHelper;
 import com.lawencon.ticket.model.request.comment.CreateCommentRequest;
+import com.lawencon.ticket.model.response.WebResponse;
 import com.lawencon.ticket.model.response.comment.CommentResponse;
 import com.lawencon.ticket.service.CommentService;
 
@@ -35,7 +36,8 @@ public class CommentController {
     }
 
     @GetMapping(value = "/comments/{id}/ticket", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<CommentResponse>> findByTicketId(@PathVariable String id) {
-        return ResponseEntity.ok(service.findByTicketId(id));
+    public ResponseEntity<WebResponse<List<CommentResponse>>> findByTicketId(
+            @PathVariable String id) {
+        return ResponseEntity.ok(ResponseHelper.ok(service.findByTicketId(id)));
     }
 }

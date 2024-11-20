@@ -12,4 +12,7 @@ import lombok.Setter;
 public class CommentResponse {
     private String comment;
     private String name;
+    private String userId;
+    private String ticketId;
+    private String date;
 }

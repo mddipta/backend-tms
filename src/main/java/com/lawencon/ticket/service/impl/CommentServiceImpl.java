@@ -1,7 +1,9 @@
 package com.lawencon.ticket.service.impl;
 
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +58,14 @@ public class CommentServiceImpl implements CommentService {
         CommentResponse response = new CommentResponse();
         response.setComment(comment.getComment());
         response.setName(comment.getUser().getName());
+        response.setUserId(comment.getUser().getId());
+
+        LocalDateTime localDateTime =
+                comment.getCreatedAt().toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime();
+        String formattedDate =
+                localDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd"));
+        response.setDate(formattedDate);
+
         return response;
     }
 

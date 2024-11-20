@@ -44,7 +44,8 @@ public class UserServiceImpl implements UserService {
         Optional<User> user = repository.findByUsername(request.getUsername());
         if (user.isPresent()) {
             if (!passwordEncoder.matches(request.getPassword(), user.get().getPassword())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong username or password");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Wrong username or password");
             }
             return user;
         } else {
@@ -97,7 +98,6 @@ public class UserServiceImpl implements UserService {
         }
 
         validateIdExist(request.getId());
-        validateUsernameExist(request.getUsername());
 
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
@@ -134,13 +134,15 @@ public class UserServiceImpl implements UserService {
     public UserDetailsService userDetailsService() {
         return new UserDetailsService() {
             @Override
-            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                User user = repository.findByUsername(username).orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
+            public UserDetails loadUserByUsername(String username)
+                    throws UsernameNotFoundException {
+                User user = repository.findByUsername(username)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                "User not found"));
                 List<GrantedAuthority> authorities = new ArrayList<>();
                 authorities.add(new SimpleGrantedAuthority(user.getRole().getCode()));
-                return UserPrinciple.builder().user(user).authorities(authorities).role(user.getRole())
-                        .build();
+                return UserPrinciple.builder().user(user).authorities(authorities)
+                        .role(user.getRole()).build();
             }
         };
     }

@@ -37,22 +37,22 @@ public class UserController {
     }
 
     @GetMapping(value = "/users/{role}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WebResponse<List<UserResponse>>> getByRoleId(@PathVariable String role){
+    public ResponseEntity<WebResponse<List<UserResponse>>> getByRoleId(@PathVariable String role) {
         return ResponseEntity.ok(ResponseHelper.ok(userService.getAllByRole(role)));
     }
 
     @PostMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> create(@RequestBody UserCreateRequest request) {
+    public ResponseEntity<WebResponse<String>> create(@RequestBody UserCreateRequest request) {
         userService.create(request);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok(ResponseHelper.ok("Success"));
     }
 
     @PutMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> update(@RequestBody UpdateUserRequest request) {
+    public ResponseEntity<WebResponse<String>> update(@RequestBody UpdateUserRequest request) {
         userService.update(request);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok(ResponseHelper.ok("Success"));
     }
 
     @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -61,8 +61,8 @@ public class UserController {
     }
 
     @DeleteMapping(value = "/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> delete(@PathVariable String id) {
+    public ResponseEntity<WebResponse<String>> delete(@PathVariable String id) {
         userService.delete(id);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok(ResponseHelper.ok("Success"));
     }
 }

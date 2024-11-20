@@ -37,7 +37,8 @@ public class CompanyController {
     @GetMapping(value = "/companies", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WebResponse<List<CompanyResponse>>> findAll(PagingRequest pagingRequest,
             @RequestParam(required = false) String inquiry) {
-        return ResponseEntity.ok(ResponseHelper.ok(pagingRequest, service.getAll(pagingRequest, inquiry)));
+        return ResponseEntity
+                .ok(ResponseHelper.ok(pagingRequest, service.getAll(pagingRequest, inquiry)));
     }
 
     @GetMapping(value = "/company/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -46,20 +47,22 @@ public class CompanyController {
     }
 
     @PostMapping(value = "/company", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> add(@Valid @RequestBody CompanyRequestCreate request) {
+    public ResponseEntity<WebResponse<String>> add(
+            @Valid @RequestBody CompanyRequestCreate request) {
         service.create(request);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok(ResponseHelper.ok("Create company success"));
     }
 
     @PutMapping(value = "/company", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> update(@Valid @RequestBody CompanyRequestUpdate request) {
+    public ResponseEntity<WebResponse<String>> update(
+            @Valid @RequestBody CompanyRequestUpdate request) {
         service.update(request);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok(ResponseHelper.ok("Update company success"));
     }
 
     @DeleteMapping(value = "/company/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> delete(@PathVariable String id) {
+    public ResponseEntity<WebResponse<String>> delete(@PathVariable String id) {
         service.delete(id);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok(ResponseHelper.ok("Delete company success"));
     }
 }

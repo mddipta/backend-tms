@@ -1,7 +1,6 @@
 package com.lawencon.ticket.controller;
 
 import java.util.List;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,16 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.lawencon.ticket.helper.ResponseHelper;
 import com.lawencon.ticket.model.request.PagingRequest;
-import com.lawencon.ticket.model.request.SortBy;
 import com.lawencon.ticket.model.request.company.CompanyRequestCreate;
 import com.lawencon.ticket.model.request.company.CompanyRequestUpdate;
 import com.lawencon.ticket.model.response.WebResponse;
 import com.lawencon.ticket.model.response.company.CompanyResponse;
 import com.lawencon.ticket.service.CompanyService;
-
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;

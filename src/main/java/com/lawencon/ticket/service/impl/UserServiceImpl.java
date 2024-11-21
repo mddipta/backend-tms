@@ -3,12 +3,18 @@ package com.lawencon.ticket.service.impl;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import com.lawencon.ticket.authentication.model.UserPrinciple;
+import com.lawencon.ticket.helper.SpecificationHelper;
 import com.lawencon.ticket.model.response.role.RoleResponse;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,7 +24,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
+import com.lawencon.ticket.model.request.PagingRequest;
 import com.lawencon.ticket.model.request.user.UpdateUserRequest;
 import com.lawencon.ticket.model.request.user.UserCreateRequest;
 import com.lawencon.ticket.model.request.user.UserLoginRequest;
@@ -54,14 +60,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponse> getAll() {
-        List<UserResponse> responses = new ArrayList<>();
-        List<User> users = repository.findAll();
-        for (User user : users) {
-            UserResponse response = mapToResponse(user);
-            responses.add(response);
+    public Page<UserResponse> getAll(PagingRequest pagingRequest, String inquiry) {
+        PageRequest pageRequest =
+                PageRequest.of(pagingRequest.getPage(), pagingRequest.getPageSize(),
+                        SpecificationHelper.createSort(pagingRequest.getSortBy()));
+        Specification<User> spec = Specification.where(null);
+        if (inquiry != null) {
+            spec = spec.and(SpecificationHelper.inquiryFilter(
+                    Arrays.asList("username", "password", "name", "email"), inquiry));
         }
-        return responses;
+
+        Page<User> userResponses = repository.findAll(spec, pageRequest);
+
+        List<UserResponse> responses = userResponses.getContent().stream().map(user -> {
+            UserResponse userResponse = mapToResponse(user);
+            return userResponse;
+        }).toList();
+
+        return new PageImpl<>(responses, pageRequest, userResponses.getTotalElements());
     }
 
     @Override

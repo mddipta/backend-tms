@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lawencon.ticket.helper.ResponseHelper;
+import com.lawencon.ticket.model.request.PagingRequest;
 import com.lawencon.ticket.model.request.user.UpdateUserRequest;
 import com.lawencon.ticket.model.request.user.UserCreateRequest;
 import com.lawencon.ticket.model.response.WebResponse;
@@ -56,8 +58,10 @@ public class UserController {
     }
 
     @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WebResponse<List<UserResponse>>> getAll() {
-        return ResponseEntity.ok(ResponseHelper.ok(userService.getAll()));
+    public ResponseEntity<WebResponse<List<UserResponse>>> getAll(PagingRequest pagingRequest,
+            @RequestParam(required = false) String inquiry) {
+        return ResponseEntity
+                .ok(ResponseHelper.ok(pagingRequest, userService.getAll(pagingRequest, inquiry)));
     }
 
     @DeleteMapping(value = "/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

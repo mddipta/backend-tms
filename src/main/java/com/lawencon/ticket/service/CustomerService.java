@@ -1,16 +1,17 @@
 package com.lawencon.ticket.service;
 
 import java.util.List;
-
+import com.lawencon.ticket.model.request.PagingRequest;
 import com.lawencon.ticket.model.request.customer.CreateCustomerRequest;
 import com.lawencon.ticket.model.request.customer.UpdateCustomerRequest;
 import com.lawencon.ticket.model.response.File;
 import com.lawencon.ticket.model.response.customer.CustomerResponse;
 import com.lawencon.ticket.persistence.entity.Customer;
 import net.sf.jasperreports.engine.JRException;
+import org.springframework.data.domain.Page;
 
 public interface CustomerService {
-    List<CustomerResponse> getAll();
+    Page<CustomerResponse> getAll(PagingRequest pagingRequest, String inquiry);
 
     void create(CreateCustomerRequest request);
 

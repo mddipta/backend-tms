@@ -74,7 +74,8 @@ public class CompanyServiceImpl implements CompanyService {
 
         Specification<Company> spec = Specification.where(null);
         if (inquiry != null) {
-            spec = spec.and(SpecificationHelper.inquiryFilter(Arrays.asList("name"), inquiry));
+            spec = spec.and(
+                    SpecificationHelper.inquiryFilter(Arrays.asList("name", "address"), inquiry));
         }
 
         Page<Company> companyResponses = repository.findAll(spec, pageRequest);

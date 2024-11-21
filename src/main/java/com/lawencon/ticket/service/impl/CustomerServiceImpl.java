@@ -9,10 +9,15 @@ import com.lawencon.ticket.model.response.File;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
+import com.lawencon.ticket.helper.SpecificationHelper;
+import com.lawencon.ticket.model.request.PagingRequest;
 import com.lawencon.ticket.model.request.customer.CreateCustomerRequest;
 import com.lawencon.ticket.model.request.customer.UpdateCustomerRequest;
 import com.lawencon.ticket.model.response.customer.CustomerResponse;
@@ -35,14 +40,24 @@ public class CustomerServiceImpl implements CustomerService {
     CompanyService companyService;
 
     @Override
-    public List<CustomerResponse> getAll() {
-        List<CustomerResponse> responses = new ArrayList<>();
-        List<Customer> customers = repository.findAll();
-        for (Customer customer : customers) {
-            CustomerResponse response = mapToRespoonse(customer);
-            responses.add(response);
+    public Page<CustomerResponse> getAll(PagingRequest pagingRequest, String inquiry) {
+        PageRequest pageRequest =
+                PageRequest.of(pagingRequest.getPage(), pagingRequest.getPageSize(),
+                        SpecificationHelper.createSort(pagingRequest.getSortBy()));
+        Specification<Customer> spec = Specification.where(null);
+        if (inquiry != null) {
+            spec = spec.and(SpecificationHelper.inquiryFilter(
+                    Arrays.asList("company.name", "user.name", "picUser.name"), inquiry));
         }
-        return responses;
+
+        Page<Customer> customerResponses = repository.findAll(spec, pageRequest);
+
+        List<CustomerResponse> responses = customerResponses.getContent().stream().map(customer -> {
+            CustomerResponse customerResponse = mapToRespoonse(customer);
+            return customerResponse;
+        }).toList();
+
+        return new PageImpl<>(responses, pageRequest, customerResponses.getTotalElements());
     }
 
     @Override

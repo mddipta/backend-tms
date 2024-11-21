@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lawencon.ticket.helper.ResponseHelper;
+import com.lawencon.ticket.model.request.PagingRequest;
 import com.lawencon.ticket.model.request.customer.CreateCustomerRequest;
 import com.lawencon.ticket.model.response.WebResponse;
 import com.lawencon.ticket.model.response.customer.CustomerResponse;
@@ -36,8 +38,10 @@ public class CustomerController {
     private CustomerService customerService;
 
     @GetMapping(value = "/customers", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WebResponse<List<CustomerResponse>>> findAll() {
-        return ResponseEntity.ok(ResponseHelper.ok(customerService.getAll()));
+    public ResponseEntity<WebResponse<List<CustomerResponse>>> findAll(PagingRequest pagingRequest,
+            @RequestParam(required = false) String inquiry) {
+        return ResponseEntity.ok(
+                ResponseHelper.ok(pagingRequest, customerService.getAll(pagingRequest, inquiry)));
     }
 
     @GetMapping(value = "/customers/pic/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

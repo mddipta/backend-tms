@@ -57,21 +57,23 @@ public class CustomerController {
     }
 
     @PostMapping(value = "/customer", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> add(@Valid @RequestBody CreateCustomerRequest request) {
+    public ResponseEntity<WebResponse<String>> add(
+            @Valid @RequestBody CreateCustomerRequest request) {
         customerService.create(request);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok(ResponseHelper.ok("Create customer success"));
     }
 
     @PutMapping(value = "/customer", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> update(@Valid @RequestBody UpdateCustomerRequest request) {
+    public ResponseEntity<WebResponse<String>> update(
+            @Valid @RequestBody UpdateCustomerRequest request) {
         customerService.update(request);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok(ResponseHelper.ok("Update customer success"));
     }
 
     @DeleteMapping(value = "/customer/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> delete(@PathVariable String id) {
+    public ResponseEntity<WebResponse<String>> delete(@PathVariable String id) {
         customerService.delete(id);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok(ResponseHelper.ok("Delete customer success"));
     }
 
     @GetMapping(value = "/customer/report", produces = MediaType.APPLICATION_JSON_VALUE)

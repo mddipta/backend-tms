@@ -50,15 +50,17 @@ public class TicketController {
     }
 
     @PostMapping(value = "/ticket", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> add(@Valid @RequestBody CreateTicketRequest request) {
+    public ResponseEntity<WebResponse<String>> add(
+            @Valid @RequestBody CreateTicketRequest request) {
         ticketService.create(request);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok(ResponseHelper.ok("Success"));
     }
 
     @PutMapping(value = "/ticket", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> update(@Valid @RequestBody UpdateTicketRequest request) {
+    public ResponseEntity<WebResponse<String>> update(
+            @Valid @RequestBody UpdateTicketRequest request) {
         ticketService.update(request);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok(ResponseHelper.ok("Success"));
     }
 
     @GetMapping(value = "/tickets/developer/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -72,10 +74,10 @@ public class TicketController {
     }
 
     @PutMapping(value = "/ticket/update-status", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateStatus(
+    public ResponseEntity<WebResponse<String>> updateStatus(
             @Valid @RequestBody ChangeStatusTicketRequest request) {
         ticketService.changeStatus(request);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok(ResponseHelper.ok("Success"));
     }
 
     @GetMapping(value = "/ticket/report", produces = MediaType.APPLICATION_JSON_VALUE)

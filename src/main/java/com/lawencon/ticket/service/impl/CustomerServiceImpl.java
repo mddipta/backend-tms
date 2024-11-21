@@ -34,7 +34,6 @@ public class CustomerServiceImpl implements CustomerService {
     UserService userService;
     CompanyService companyService;
 
-
     @Override
     public List<CustomerResponse> getAll() {
         List<CustomerResponse> responses = new ArrayList<>();

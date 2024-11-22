@@ -5,6 +5,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+import com.lawencon.ticket.authentication.helper.SessionHelper;
 import com.lawencon.ticket.model.response.File;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -41,6 +42,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Page<CustomerResponse> getAll(PagingRequest pagingRequest, String inquiry) {
+        User user = SessionHelper.getLoginUser();
+        String role = user.getRole().getCode();
+
         PageRequest pageRequest =
                 PageRequest.of(pagingRequest.getPage(), pagingRequest.getPageSize(),
                         SpecificationHelper.createSort(pagingRequest.getSortBy()));
@@ -50,7 +54,16 @@ public class CustomerServiceImpl implements CustomerService {
                     Arrays.asList("company.name", "user.name", "picUser.name"), inquiry));
         }
 
-        Page<Customer> customerResponses = repository.findAll(spec, pageRequest);
+        Page<Customer> customerResponses;
+        if (role.equals("SPA")) {
+            customerResponses = repository.findAll(spec, pageRequest);
+        } else if (role.equals("PIC")) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("picUser").get("id"), user.getId()));
+            customerResponses = repository.findAll(spec, pageRequest);
+        } else {
+            customerResponses = Page.empty();
+        }
 
         List<CustomerResponse> responses = customerResponses.getContent().stream().map(customer -> {
             CustomerResponse customerResponse = mapToRespoonse(customer);
@@ -59,6 +72,27 @@ public class CustomerServiceImpl implements CustomerService {
 
         return new PageImpl<>(responses, pageRequest, customerResponses.getTotalElements());
     }
+
+
+//    public Page<CustomerResponse> getAll(PagingRequest pagingRequest, String inquiry) {
+//        PageRequest pageRequest =
+//                PageRequest.of(pagingRequest.getPage(), pagingRequest.getPageSize(),
+//                        SpecificationHelper.createSort(pagingRequest.getSortBy()));
+//        Specification<Customer> spec = Specification.where(null);
+//        if (inquiry != null) {
+//            spec = spec.and(SpecificationHelper.inquiryFilter(
+//                    Arrays.asList("company.name", "user.name", "picUser.name"), inquiry));
+//        }
+//
+//        Page<Customer> customerResponses = repository.findAll(spec, pageRequest);
+//
+//        List<CustomerResponse> responses = customerResponses.getContent().stream().map(customer -> {
+//            CustomerResponse customerResponse = mapToRespoonse(customer);
+//            return customerResponse;
+//        }).toList();
+//
+//        return new PageImpl<>(responses, pageRequest, customerResponses.getTotalElements());
+//    }
 
     @Override
     public void create(CreateCustomerRequest request) {

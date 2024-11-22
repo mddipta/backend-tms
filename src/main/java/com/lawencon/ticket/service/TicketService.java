@@ -1,6 +1,8 @@
 package com.lawencon.ticket.service;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import com.lawencon.ticket.model.request.PagingRequest;
 import com.lawencon.ticket.model.request.ticket.ChangeStatusTicketRequest;
 import com.lawencon.ticket.model.request.ticket.CreateTicketRequest;
 import com.lawencon.ticket.model.request.ticket.UpdateTicketRequest;
@@ -10,7 +12,7 @@ import com.lawencon.ticket.persistence.entity.Ticket;
 import net.sf.jasperreports.engine.JRException;
 
 public interface TicketService {
-    List<TicketResponse> getAll();
+    Page<TicketResponse> getAll(PagingRequest pagingRequest, String inquiry);
 
     void create(CreateTicketRequest request);
 
@@ -18,9 +20,9 @@ public interface TicketService {
 
     List<TicketResponse> getByUserId(String id);
 
-    List<TicketResponse> getByUser(String id);
+    Page<TicketResponse> getByUser(PagingRequest pagingRequest, String inquiry);
 
-    List<TicketResponse> getByCustomerId(String id);
+    // List<TicketResponse> getByCustomerId(String id);
 
     TicketResponse getById(String id);
 
@@ -28,5 +30,5 @@ public interface TicketService {
 
     void changeStatus(ChangeStatusTicketRequest request);
 
-    File getReportTicket() throws JRException;
+    // File getReportTicket() throws JRException;
 }

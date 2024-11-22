@@ -5,15 +5,23 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
-
+import java.util.stream.Collectors;
 import com.lawencon.ticket.model.response.File;
 import com.lawencon.ticket.model.response.customer.CustomerResponse;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.lawencon.ticket.authentication.helper.SessionHelper;
+import com.lawencon.ticket.helper.SpecificationHelper;
+import com.lawencon.ticket.model.request.PagingRequest;
 import com.lawencon.ticket.model.request.ticket.ChangeStatusTicketRequest;
 import com.lawencon.ticket.model.request.ticket.CreateTicketRequest;
 import com.lawencon.ticket.model.request.ticket.UpdateTicketRequest;
@@ -24,6 +32,7 @@ import com.lawencon.ticket.persistence.entity.Customer;
 import com.lawencon.ticket.persistence.entity.PriorityTicketStatus;
 import com.lawencon.ticket.persistence.entity.Ticket;
 import com.lawencon.ticket.persistence.entity.TicketTransaction;
+import com.lawencon.ticket.persistence.entity.User;
 import com.lawencon.ticket.persistence.repository.TicketRepository;
 import com.lawencon.ticket.service.CustomerService;
 import com.lawencon.ticket.service.PriorityTicketStatusService;
@@ -55,16 +64,27 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public List<TicketResponse> getAll() {
-        List<TicketResponse> responses = new ArrayList<>();
-        List<Ticket> tickets = repository.findAll();
-        for (Ticket ticket : tickets) {
+    public Page<TicketResponse> getAll(PagingRequest pagingRequest, String inquiry) {
+        PageRequest pageRequest =
+                PageRequest.of(pagingRequest.getPage(), pagingRequest.getPageSize(),
+                        SpecificationHelper.createSort(pagingRequest.getSortBy()));
+
+        Specification<Ticket> spec = Specification.where(null);
+        if (inquiry != null) {
+            spec = spec.and(
+                    SpecificationHelper.inquiryFilter(Arrays.asList("title", "code"), inquiry));
+        }
+
+        Page<Ticket> ticketResponses = repository.findAll(spec, pageRequest);
+
+        List<TicketResponse> responses = ticketResponses.getContent().stream().map(ticket -> {
             TicketTransaction ticketTransaction =
                     ticketTransactionService.getLastByTicketId(ticket.getId());
-            TicketResponse response = mapToResponse(ticket, ticketTransaction);
-            responses.add(response);
-        }
-        return responses;
+            TicketResponse ticketResponse = mapToResponse(ticket, ticketTransaction);
+            return ticketResponse;
+        }).toList();
+
+        return new PageImpl<>(responses, pageRequest, ticketResponses.getTotalElements());
     }
 
     @Override
@@ -179,31 +199,31 @@ public class TicketServiceImpl implements TicketService {
         ticketTransactionService.create(ticketTransactionRequest);
     }
 
-    @Override
-    public File getReportTicket() throws JRException {
-        File file = new File();
-        file.setFileName("Daftar Ticket");
-        file.setFileExt(".pdf");
+    // @Override
+    // public File getReportTicket() throws JRException {
+    // File file = new File();
+    // file.setFileName("Daftar Ticket");
+    // file.setFileExt(".pdf");
 
-        List<TicketResponse> reportData = getAll();
+    // List<TicketResponse> reportData = getAll();
 
-        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(reportData);
+    // JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(reportData);
 
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("subTitle", "Daftar Tiket");
-        parameters.put("data", dataSource.cloneDataSource());
+    // Map<String, Object> parameters = new HashMap<>();
+    // parameters.put("subTitle", "Daftar Tiket");
+    // parameters.put("data", dataSource.cloneDataSource());
 
-        InputStream filePath =
-                getClass().getClassLoader().getResourceAsStream("templates/ticket.jrxml");
-        JasperReport report = JasperCompileManager.compileReport(filePath);
+    // InputStream filePath =
+    // getClass().getClassLoader().getResourceAsStream("templates/ticket.jrxml");
+    // JasperReport report = JasperCompileManager.compileReport(filePath);
 
-        JasperPrint print = JasperFillManager.fillReport(report, parameters, dataSource);
+    // JasperPrint print = JasperFillManager.fillReport(report, parameters, dataSource);
 
-        byte[] bytes = JasperExportManager.exportReportToPdf(print);
-        file.setData(bytes);
+    // byte[] bytes = JasperExportManager.exportReportToPdf(print);
+    // file.setData(bytes);
 
-        return file;
-    }
+    // return file;
+    // }
 
     private TicketResponse mapToResponse(Ticket ticket, TicketTransaction ticketTransaction) {
         TicketResponse response = new TicketResponse();
@@ -230,66 +250,63 @@ public class TicketServiceImpl implements TicketService {
         }
     }
 
+    // @Override
+    // public List<TicketResponse> getByCustomerId(String id) {
+    // List<TicketResponse> responses = new ArrayList<>();
+    // List<Ticket> tickets = repository.findByCustomerId(id);
+    // for (Ticket ticket : tickets) {
+    // TicketTransaction ticketTransaction =
+    // ticketTransactionService.getLastByTicketId(ticket.getId());
+    // TicketResponse response = mapToResponse(ticket, ticketTransaction);
+    // responses.add(response);
+    // }
+    // return responses;
+    // }
+
     @Override
-    public List<TicketResponse> getByCustomerId(String id) {
-        List<TicketResponse> responses = new ArrayList<>();
-        List<Ticket> tickets = repository.findByCustomerId(id);
-        for (Ticket ticket : tickets) {
+    public Page<TicketResponse> getByUser(PagingRequest pagingRequest, String inquiry) {
+        // Mendapatkan user login
+        User userLogin = SessionHelper.getLoginUser();
+        String userId = userLogin.getId();
+
+
+        // Membuat PageRequest
+        PageRequest pageRequest =
+                PageRequest.of(pagingRequest.getPage(), pagingRequest.getPageSize(),
+                        SpecificationHelper.createSort(pagingRequest.getSortBy()));
+
+        // Membuat Specification
+        Specification<Ticket> spec = Specification.where(null);
+
+        // Menambahkan filter inquiry
+        if (inquiry != null) {
+            spec = spec.and(
+                    SpecificationHelper.inquiryFilter(Arrays.asList("title", "code"), inquiry));
+        }
+
+        // Menambahkan filter berdasarkan role
+        if(userLogin.getRole().getCode().equals("DEV")) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("user").get("id"), userId));
+        } else if(userLogin.getRole().getCode().equals("PIC")) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("customer").get("picUser").get("id"), userId));
+        } else if(userLogin.getRole().getCode().equals("CUS")){
+            String customerId = customerService.getByUserId(userLogin.getId()).getId();
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("customer").get("id"), customerId));
+        }
+
+        // Query data dengan Specification
+        Page<Ticket> ticketResponses = repository.findAll(spec, pageRequest);
+
+        // Mapping ke response
+        List<TicketResponse> responses = ticketResponses.getContent().stream().map(ticket -> {
             TicketTransaction ticketTransaction =
                     ticketTransactionService.getLastByTicketId(ticket.getId());
-            TicketResponse response = mapToResponse(ticket, ticketTransaction);
-            responses.add(response);
-        }
-        return responses;
+            return mapToResponse(ticket, ticketTransaction);
+        }).collect(Collectors.toList());
+
+        return new PageImpl<>(responses, pageRequest, ticketResponses.getTotalElements());
     }
-
-    @Override
-    public List<TicketResponse> getByUser(String id) {
-        // Check role user
-        UserResponse user = userService.getById(id);
-        if (user.getRole().equals("CUS")) {
-            CustomerResponse customerResponse = customerService.getByUserId(id);
-            String customerId = customerResponse.getId();
-
-            List<Ticket> tickets = repository.findByCustomerId(customerId);
-            List<TicketResponse> responses = new ArrayList<>();
-            for (Ticket ticket : tickets) {
-                TicketTransaction ticketTransaction =
-                        ticketTransactionService.getLastByTicketId(ticket.getId());
-                TicketResponse response = mapToResponse(ticket, ticketTransaction);
-                responses.add(response);
-            }
-
-            return responses;
-        } else if (user.getRole().equals("DEV")) {
-            List<Ticket> tickets = repository.findByUserId(id);
-            List<TicketResponse> responses = new ArrayList<>();
-            for (Ticket ticket : tickets) {
-                TicketTransaction ticketTransaction =
-                        ticketTransactionService.getLastByTicketId(ticket.getId());
-                TicketResponse response = mapToResponse(ticket, ticketTransaction);
-                responses.add(response);
-            }
-
-            return responses;
-        } else if (user.getRole().equals("PIC")) {
-            List<CustomerResponse> customerResponses = customerService.getByPicId(id);
-            List<TicketResponse> responses = new ArrayList<>();
-            for (CustomerResponse customerResponse : customerResponses) {
-                List<Ticket> tickets = repository.findByCustomerId(customerResponse.getId());
-                for (Ticket ticket : tickets) {
-                    TicketTransaction ticketTransaction =
-                            ticketTransactionService.getLastByTicketId(ticket.getId());
-                    TicketResponse response = mapToResponse(ticket, ticketTransaction);
-                    responses.add(response);
-                }
-            }
-
-            return responses;
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-
 }

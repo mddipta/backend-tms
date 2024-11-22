@@ -28,4 +28,5 @@ public interface CustomerService {
     File getReport() throws JRException;
 
     List<CustomerResponse> getByPicId(String id);
+    
 }

@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lawencon.ticket.helper.ResponseHelper;
+import com.lawencon.ticket.model.request.PagingRequest;
 import com.lawencon.ticket.model.request.ticket.ChangeStatusTicketRequest;
 import com.lawencon.ticket.model.request.ticket.CreateTicketRequest;
 import com.lawencon.ticket.model.request.ticket.UpdateTicketRequest;
@@ -34,19 +36,23 @@ public class TicketController {
     private final TicketService ticketService;
 
     @GetMapping(value = "/tickets", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WebResponse<List<TicketResponse>>> findAll() {
-        return ResponseEntity.ok(ResponseHelper.ok(ticketService.getAll()));
+    public ResponseEntity<WebResponse<List<TicketResponse>>> findAll(PagingRequest pagingRequest,
+            @RequestParam(required = false) String inquiry) {
+        return ResponseEntity
+                .ok(ResponseHelper.ok(pagingRequest, ticketService.getAll(pagingRequest, inquiry)));
     }
 
-    @GetMapping(value = "/tickets/customer/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WebResponse<List<TicketResponse>>> findByCustomerId(
-            @PathVariable String id) {
-        return ResponseEntity.ok(ResponseHelper.ok(ticketService.getByCustomerId(id)));
-    }
+    // @GetMapping(value = "/tickets/customer/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    // public ResponseEntity<WebResponse<List<TicketResponse>>> findByCustomerId(
+    // @PathVariable String id) {
+    // return ResponseEntity.ok(ResponseHelper.ok(ticketService.getByCustomerId(id)));
+    // }
 
-    @GetMapping(value = "/tickets/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WebResponse<List<TicketResponse>>> findByUser(@PathVariable String id) {
-        return ResponseEntity.ok(ResponseHelper.ok(ticketService.getByUser(id)));
+    @GetMapping(value = "/tickets/user", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WebResponse<List<TicketResponse>>> findByUser(PagingRequest pagingRequest,
+            @RequestParam(required = false) String inquiry) {
+        return ResponseEntity.ok(
+                ResponseHelper.ok(pagingRequest, ticketService.getByUser(pagingRequest, inquiry)));
     }
 
     @PostMapping(value = "/ticket", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -63,10 +69,11 @@ public class TicketController {
         return ResponseEntity.ok(ResponseHelper.ok("Success"));
     }
 
-    @GetMapping(value = "/tickets/developer/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WebResponse<List<TicketResponse>>> findByUserId(@PathVariable String id) {
-        return ResponseEntity.ok(ResponseHelper.ok(ticketService.getByUserId(id)));
-    }
+    // @GetMapping(value = "/tickets/developer/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    // public ResponseEntity<WebResponse<List<TicketResponse>>> findByUserId(@PathVariable String
+    // id) {
+    // return ResponseEntity.ok(ResponseHelper.ok(ticketService.getByUserId(id)));
+    // }
 
     @GetMapping(value = "/ticket/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WebResponse<TicketResponse>> findById(@PathVariable String id) {
@@ -80,8 +87,8 @@ public class TicketController {
         return ResponseEntity.ok(ResponseHelper.ok("Success"));
     }
 
-    @GetMapping(value = "/ticket/report", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WebResponse<File>> generateReport() throws JRException {
-        return ResponseEntity.ok(ResponseHelper.ok(ticketService.getReportTicket()));
-    }
+    // @GetMapping(value = "/ticket/report", produces = MediaType.APPLICATION_JSON_VALUE)
+    // public ResponseEntity<WebResponse<File>> generateReport() throws JRException {
+    // return ResponseEntity.ok(ResponseHelper.ok(ticketService.getReportTicket()));
+    // }
 }

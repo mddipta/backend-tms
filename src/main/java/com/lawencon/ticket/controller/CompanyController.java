@@ -37,6 +37,11 @@ public class CompanyController {
                 .ok(ResponseHelper.ok(pagingRequest, service.getAll(pagingRequest, inquiry)));
     }
 
+    @GetMapping(value = "/companies/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WebResponse<List<CompanyResponse>>> findAll() {
+        return ResponseEntity.ok(ResponseHelper.ok(service.getAllCompanies()));
+    }
+
     @GetMapping(value = "/company/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WebResponse<CompanyResponse>> findById(@PathVariable String id) {
         return ResponseEntity.ok(ResponseHelper.ok(service.getById(id)));

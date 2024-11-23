@@ -7,6 +7,8 @@ import com.lawencon.ticket.model.request.company.CompanyRequestUpdate;
 import com.lawencon.ticket.model.response.company.CompanyResponse;
 import com.lawencon.ticket.persistence.entity.Company;
 
+import java.util.List;
+
 public interface CompanyService {
     CompanyResponse getById(String id);
 
@@ -19,4 +21,6 @@ public interface CompanyService {
     void delete(String id);
 
     Company findEntityById(String companyId);
+
+    List<CompanyResponse> getAllCompanies();
 }

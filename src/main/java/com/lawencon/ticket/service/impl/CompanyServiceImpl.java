@@ -3,6 +3,7 @@ package com.lawencon.ticket.service.impl;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Arrays;
@@ -103,6 +104,18 @@ public class CompanyServiceImpl implements CompanyService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Company Id not found");
         }
         return company.get();
+    }
+
+    @Override
+    public List<CompanyResponse> getAllCompanies() {
+        List<Company> companies = repository.findAll();
+        List<CompanyResponse> responses = new ArrayList<>();
+        companies.forEach(company -> {
+            CompanyResponse response = new CompanyResponse();
+            BeanUtils.copyProperties(company, response);
+            responses.add(response);
+        });
+        return responses;
     }
 
     private CompanyResponse mapToResponse(Company company) {

@@ -27,4 +27,9 @@ public class TicketStatusController {
     public ResponseEntity<WebResponse<List<TicketStatusResponse>>> findAll() {
         return ResponseEntity.ok(ResponseHelper.ok(ticketStatusService.getAll()));
     }
+
+    @GetMapping(value = "/ticket-statuses/customer", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WebResponse<List<TicketStatusResponse>>> findForCustomer() {
+        return ResponseEntity.ok(ResponseHelper.ok(ticketStatusService.getStatusForCustomer()));
+    }
 }

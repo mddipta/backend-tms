@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import com.lawencon.ticket.model.response.File;
 import com.lawencon.ticket.model.response.customer.CustomerResponse;
+import com.lawencon.ticket.persistence.entity.*;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.BeanUtils;
@@ -28,15 +29,11 @@ import com.lawencon.ticket.model.request.ticket.UpdateTicketRequest;
 import com.lawencon.ticket.model.request.transaction.CreateTicketTransactionRequest;
 import com.lawencon.ticket.model.response.ticket.TicketResponse;
 import com.lawencon.ticket.model.response.user.UserResponse;
-import com.lawencon.ticket.persistence.entity.Customer;
-import com.lawencon.ticket.persistence.entity.PriorityTicketStatus;
-import com.lawencon.ticket.persistence.entity.Ticket;
-import com.lawencon.ticket.persistence.entity.TicketTransaction;
-import com.lawencon.ticket.persistence.entity.User;
 import com.lawencon.ticket.persistence.repository.TicketRepository;
 import com.lawencon.ticket.service.CustomerService;
 import com.lawencon.ticket.service.PriorityTicketStatusService;
 import com.lawencon.ticket.service.TicketService;
+import com.lawencon.ticket.service.TicketStatusService;
 import com.lawencon.ticket.service.TicketTransactionService;
 import com.lawencon.ticket.service.UserService;
 import lombok.AllArgsConstructor;
@@ -50,6 +47,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketTransactionService ticketTransactionService;
     private final CustomerService customerService;
     private final UserService userService;
+    private final TicketStatusService ticketStatusService;
 
     private final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private final int INVOICE_LENGTH = 5;
@@ -101,7 +99,7 @@ public class TicketServiceImpl implements TicketService {
         ticket.setDateTicket(dateNow);
 
         PriorityTicketStatus priorityTicketStatus =
-                priorityTicketStatusService.getEntityByCode(request.getPriorityTicketStatus());
+                priorityTicketStatusService.getEntityById(request.getPriorityTicketStatus());
         ticket.setPriorityTicketStatus(priorityTicketStatus);
 
         Customer customer = customerService.findEntityById(request.getCustomerId());
@@ -142,6 +140,24 @@ public class TicketServiceImpl implements TicketService {
         PriorityTicketStatus priorityTicketStatus =
                 priorityTicketStatusService.getEntityByCode(request.getPriorityTicketStatus());
         ticket.setPriorityTicketStatus(priorityTicketStatus);
+
+        TicketStatus ticketStatus = ticketStatusService.getEntityById(request.getStatus());
+        String codeStatus = ticketStatus.getCode();
+
+        CreateTicketTransactionRequest ticketTransactionRequest =
+                new CreateTicketTransactionRequest();
+
+        ticketTransactionRequest.setUser(null);
+        ticketTransactionRequest.setStatus(codeStatus);
+
+        TicketTransaction lastTransaction =
+                ticketTransactionService.getLastByTicketId(ticket.getId());
+        Long lastTransactionNumber = lastTransaction.getNumber() + 1;
+
+        ticketTransactionRequest.setNumber(lastTransactionNumber);
+        ticketTransactionRequest.setTicket(ticket);
+
+        ticketTransactionService.create(ticketTransactionRequest);
 
         ticket.setIsActive(request.getIsActive());
         ticket.setUpdatedAt(ZonedDateTime.now(ZoneOffset.UTC));
@@ -228,10 +244,11 @@ public class TicketServiceImpl implements TicketService {
     private TicketResponse mapToResponse(Ticket ticket, TicketTransaction ticketTransaction) {
         TicketResponse response = new TicketResponse();
         response.setPriorityTicket(ticket.getPriorityTicketStatus().getCode());
-        response.setStatus(ticketTransaction.getTicketStatus().getCode());
+        response.setStatusId(ticketTransaction.getTicketStatus().getId());
         response.setStatusName(ticketTransaction.getTicketStatus().getName());
         response.setPic(ticket.getCustomer().getPicUser().getName());
         response.setDate(ticket.getDateTicket());
+        response.setPriorityTicketId(ticket.getPriorityTicketStatus().getId());
 
         if (ticket.getUser() == null || ticket.getUser().getName() == null) {
             response.setDeveloper("-");
@@ -285,16 +302,16 @@ public class TicketServiceImpl implements TicketService {
         }
 
         // Menambahkan filter berdasarkan role
-        if(userLogin.getRole().getCode().equals("DEV")) {
-            spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("user").get("id"), userId));
-        } else if(userLogin.getRole().getCode().equals("PIC")) {
-            spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("customer").get("picUser").get("id"), userId));
-        } else if(userLogin.getRole().getCode().equals("CUS")){
+        if (userLogin.getRole().getCode().equals("DEV")) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder
+                    .equal(root.get("user").get("id"), userId));
+        } else if (userLogin.getRole().getCode().equals("PIC")) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder
+                    .equal(root.get("customer").get("picUser").get("id"), userId));
+        } else if (userLogin.getRole().getCode().equals("CUS")) {
             String customerId = customerService.getByUserId(userLogin.getId()).getId();
-            spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("customer").get("id"), customerId));
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder
+                    .equal(root.get("customer").get("id"), customerId));
         }
 
         // Query data dengan Specification

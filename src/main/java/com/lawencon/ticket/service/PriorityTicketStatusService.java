@@ -11,4 +11,6 @@ public interface PriorityTicketStatusService {
     PriorityTicketStatusResponse getByCode(String code);
 
     PriorityTicketStatus getEntityByCode(String code);
+
+    PriorityTicketStatus getEntityById(String id);
 }

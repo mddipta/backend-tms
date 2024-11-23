@@ -28,6 +28,7 @@ public class TicketStatusServiceImpl implements TicketStatusService {
         return responses;
     }
 
+
     @Override
     public TicketStatus getEntityById(String id) {
         return repository.findById(id).get();
@@ -42,6 +43,21 @@ public class TicketStatusServiceImpl implements TicketStatusService {
         TicketStatusResponse response = new TicketStatusResponse();
         BeanUtils.copyProperties(ticketStatus, response);
         return response;
+    }
+
+
+    @Override
+    public List<TicketStatusResponse> getStatusForCustomer() {
+        List<TicketStatusResponse> responses = new ArrayList<>();
+        List<TicketStatus> statuses = repository.findAll();
+        for (TicketStatus ticket : statuses) {
+            if (ticket.getCode().equals("OP") || ticket.getCode().equals("CL")
+                    || ticket.getCode().equals("RA")) {
+                TicketStatusResponse response = mapToResponse(ticket);
+                responses.add(response);
+            }
+        }
+        return responses;
     }
 
 

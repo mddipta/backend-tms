@@ -17,8 +17,9 @@ public class TicketResponse {
     private String title;
     private LocalDate dueDate;
     private LocalDate date;
+    private String priorityTicketId;
     private String priorityTicket;
-    private String status;
+    private String statusId;
     private String statusName;
     private String pic;
     private String developer;

@@ -28,7 +28,11 @@ public class UpdateTicketRequest {
     @NotBlank(message = "Is Active cannot be empty")
     private Boolean isActive;
 
+    @NotBlank(message = "Due Date cannot be empty")
     private LocalDate dueDate;
+
+    @NotBlank(message = "Status cannot be empty")
+    private String status;
 
     @NotBlank(message = "Version cannot be empty")
     private Long version;

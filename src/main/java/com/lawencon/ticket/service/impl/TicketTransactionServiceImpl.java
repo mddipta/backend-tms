@@ -29,6 +29,7 @@ public class TicketTransactionServiceImpl implements TicketTransactionService {
         }
 
         TicketStatus ticketStatus = ticketStatusService.getEntityByCode(request.getStatus());
+
         ticketStatus.setId(ticketStatus.getId());
         ticketTransaction.setTicketStatus(ticketStatus);
         ticketTransaction.setTicket(request.getTicket());

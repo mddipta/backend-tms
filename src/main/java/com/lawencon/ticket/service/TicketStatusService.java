@@ -11,4 +11,6 @@ public interface TicketStatusService {
     TicketStatus getEntityById(String id);
 
     TicketStatus getEntityByCode(String code);
+
+    List<TicketStatusResponse> getStatusForCustomer();
 }

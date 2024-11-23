@@ -51,6 +51,15 @@ public class PriorityTicketStatusServiceImpl implements PriorityTicketStatusServ
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
+    @Override
+    public PriorityTicketStatus getEntityById(String id) {
+        Optional<PriorityTicketStatus> priorityTicket = repository.findById(id);
+        if (priorityTicket.isPresent()) {
+            return priorityTicket.get();
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+
     private PriorityTicketStatusResponse mapToResponse(PriorityTicketStatus priorityTicketStatus) {
         PriorityTicketStatusResponse response = new PriorityTicketStatusResponse();
         BeanUtils.copyProperties(priorityTicketStatus, response);

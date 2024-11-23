@@ -138,7 +138,7 @@ public class TicketServiceImpl implements TicketService {
         ticket.setDueDate(request.getDueDate());
 
         PriorityTicketStatus priorityTicketStatus =
-                priorityTicketStatusService.getEntityByCode(request.getPriorityTicketStatus());
+                priorityTicketStatusService.getEntityById(request.getPriorityTicketStatus());
         ticket.setPriorityTicketStatus(priorityTicketStatus);
 
         TicketStatus ticketStatus = ticketStatusService.getEntityById(request.getStatus());
@@ -159,7 +159,6 @@ public class TicketServiceImpl implements TicketService {
 
         ticketTransactionService.create(ticketTransactionRequest);
 
-        ticket.setIsActive(request.getIsActive());
         ticket.setUpdatedAt(ZonedDateTime.now(ZoneOffset.UTC));
         ticket.setUpdatedBy("system");
 

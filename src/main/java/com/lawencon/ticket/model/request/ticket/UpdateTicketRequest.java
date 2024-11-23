@@ -25,9 +25,6 @@ public class UpdateTicketRequest {
     @NotBlank(message = "Priority Ticket Status cannot be empty")
     private String priorityTicketStatus;
 
-    @NotBlank(message = "Is Active cannot be empty")
-    private Boolean isActive;
-
     @NotBlank(message = "Due Date cannot be empty")
     private LocalDate dueDate;
 

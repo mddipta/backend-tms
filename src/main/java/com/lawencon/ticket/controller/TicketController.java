@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lawencon.ticket.helper.ResponseHelper;
 import com.lawencon.ticket.model.request.PagingRequest;
+import com.lawencon.ticket.model.request.ticket.AssignDeveloperTicketRequest;
 import com.lawencon.ticket.model.request.ticket.ChangeStatusTicketRequest;
 import com.lawencon.ticket.model.request.ticket.CreateTicketRequest;
 import com.lawencon.ticket.model.request.ticket.ProcessTicketRequest;
@@ -89,9 +90,9 @@ public class TicketController {
     }
 
     @PutMapping(value = "/ticket/assign", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WebResponse<String>> assignTicket(@RequestBody String ticketId,
-            @RequestBody String userId) {
-        ticketService.assignTicket(ticketId, userId);
+    public ResponseEntity<WebResponse<String>> assignTicket(
+            @Valid @RequestBody AssignDeveloperTicketRequest request) {
+        ticketService.assignTicket(request);
         return ResponseEntity.ok(ResponseHelper.ok("Success"));
     }
 

@@ -3,6 +3,7 @@ package com.lawencon.ticket.service;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import com.lawencon.ticket.model.request.PagingRequest;
+import com.lawencon.ticket.model.request.ticket.AssignDeveloperTicketRequest;
 import com.lawencon.ticket.model.request.ticket.ChangeStatusTicketRequest;
 import com.lawencon.ticket.model.request.ticket.CreateTicketRequest;
 import com.lawencon.ticket.model.request.ticket.ProcessTicketRequest;
@@ -31,7 +32,7 @@ public interface TicketService {
 
     void changeStatus(ChangeStatusTicketRequest request);
 
-    void assignTicket(String ticketId, String userId);
+    void assignTicket(AssignDeveloperTicketRequest request);
 
     void processTicket(ProcessTicketRequest request);
 

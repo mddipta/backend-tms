@@ -23,8 +23,10 @@ import org.springframework.web.server.ResponseStatusException;
 import com.lawencon.ticket.authentication.helper.SessionHelper;
 import com.lawencon.ticket.helper.SpecificationHelper;
 import com.lawencon.ticket.model.request.PagingRequest;
+import com.lawencon.ticket.model.request.ticket.AssignDeveloperTicketRequest;
 import com.lawencon.ticket.model.request.ticket.ChangeStatusTicketRequest;
 import com.lawencon.ticket.model.request.ticket.CreateTicketRequest;
+import com.lawencon.ticket.model.request.ticket.ProcessTicketRequest;
 import com.lawencon.ticket.model.request.ticket.UpdateTicketRequest;
 import com.lawencon.ticket.model.request.transaction.CreateTicketTransactionRequest;
 import com.lawencon.ticket.model.response.ticket.TicketResponse;
@@ -327,9 +329,9 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public void assignTicket(String ticketId, String userId) {
-        Ticket ticket = repository.findById(ticketId).get();
-        User user = userService.findEntityById(userId);
+    public void assignTicket(AssignDeveloperTicketRequest request) {
+        Ticket ticket = repository.findById(request.getTicketId()).get();
+        User user = userService.findEntityById(request.getUserId());
 
         CreateTicketTransactionRequest ticketTransactionRequest =
                 new CreateTicketTransactionRequest();
@@ -351,14 +353,14 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public void processTicket(String ticketId) {
+    public void processTicket(ProcessTicketRequest request) {
         User userLogin = SessionHelper.getLoginUser();
 
         if (!userLogin.getRole().getCode().equals("DEV")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        Ticket ticket = repository.findById(ticketId).get();
+        Ticket ticket = repository.findById(request.getTicketId()).get();
 
         CreateTicketTransactionRequest ticketTransactionRequest =
                 new CreateTicketTransactionRequest();

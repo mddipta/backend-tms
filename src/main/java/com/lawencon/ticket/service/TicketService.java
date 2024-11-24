@@ -36,5 +36,7 @@ public interface TicketService {
 
     void processTicket(ProcessTicketRequest request);
 
+    void finishTicket(ProcessTicketRequest id);
+
     // File getReportTicket() throws JRException;
 }

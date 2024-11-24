@@ -103,7 +103,12 @@ public class TicketController {
         return ResponseEntity.ok(ResponseHelper.ok("Success"));
     }
 
-
+    @PutMapping(value = "/ticket/finish", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WebResponse<String>> finishTicket(
+            @RequestBody ProcessTicketRequest request) {
+        ticketService.finishTicket(request);
+        return ResponseEntity.ok(ResponseHelper.ok("Success"));
+    }
 
     // @GetMapping(value = "/ticket/report", produces = MediaType.APPLICATION_JSON_VALUE)
     // public ResponseEntity<WebResponse<File>> generateReport() throws JRException {

@@ -377,4 +377,30 @@ public class TicketServiceImpl implements TicketService {
 
         ticketTransactionService.create(ticketTransactionRequest);
     }
+
+    @Override
+    public void finishTicket(ProcessTicketRequest request) {
+        User userLogin = SessionHelper.getLoginUser();
+
+        if (!userLogin.getRole().getCode().equals("DEV")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        Ticket ticket = repository.findById(request.getTicketId()).get();
+
+        CreateTicketTransactionRequest ticketTransactionRequest =
+                new CreateTicketTransactionRequest();
+
+        ticketTransactionRequest.setUser(userLogin);
+        ticketTransactionRequest.setStatus("PC");
+
+        TicketTransaction lastTransaction =
+                ticketTransactionService.getLastByTicketId(ticket.getId());
+        Long lastTransactionNumber = lastTransaction.getNumber() + 1;
+
+        ticketTransactionRequest.setNumber(lastTransactionNumber);
+        ticketTransactionRequest.setTicket(ticket);
+
+        ticketTransactionService.create(ticketTransactionRequest);
+    }
 }

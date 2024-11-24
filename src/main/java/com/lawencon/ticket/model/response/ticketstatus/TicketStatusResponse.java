@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TicketStatusResponse {
-    private Long id;
+    private String id;
     private String code;
     private String name;
     private Long version;

@@ -30,5 +30,9 @@ public interface TicketService {
 
     void changeStatus(ChangeStatusTicketRequest request);
 
+    void assignTicket(String ticketId, String userId);
+
+    void processTicket(String ticketId);
+
     // File getReportTicket() throws JRException;
 }

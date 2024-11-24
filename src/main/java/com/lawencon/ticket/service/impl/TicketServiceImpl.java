@@ -325,4 +325,54 @@ public class TicketServiceImpl implements TicketService {
 
         return new PageImpl<>(responses, pageRequest, ticketResponses.getTotalElements());
     }
+
+    @Override
+    public void assignTicket(String ticketId, String userId) {
+        Ticket ticket = repository.findById(ticketId).get();
+        User user = userService.findEntityById(userId);
+
+        CreateTicketTransactionRequest ticketTransactionRequest =
+                new CreateTicketTransactionRequest();
+
+        ticketTransactionRequest.setUser(null);
+        ticketTransactionRequest.setStatus("PA");
+
+        TicketTransaction lastTransaction =
+                ticketTransactionService.getLastByTicketId(ticket.getId());
+        Long lastTransactionNumber = lastTransaction.getNumber() + 1;
+
+        ticketTransactionRequest.setNumber(lastTransactionNumber);
+        ticketTransactionRequest.setTicket(ticket);
+
+        ticketTransactionService.create(ticketTransactionRequest);
+
+        ticket.setUser(user);
+        repository.saveAndFlush(ticket);
+    }
+
+    @Override
+    public void processTicket(String ticketId) {
+        User userLogin = SessionHelper.getLoginUser();
+
+        if (!userLogin.getRole().getCode().equals("DEV")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        Ticket ticket = repository.findById(ticketId).get();
+
+        CreateTicketTransactionRequest ticketTransactionRequest =
+                new CreateTicketTransactionRequest();
+
+        ticketTransactionRequest.setUser(userLogin);
+        ticketTransactionRequest.setStatus("OG");
+
+        TicketTransaction lastTransaction =
+                ticketTransactionService.getLastByTicketId(ticket.getId());
+        Long lastTransactionNumber = lastTransaction.getNumber() + 1;
+
+        ticketTransactionRequest.setNumber(lastTransactionNumber);
+        ticketTransactionRequest.setTicket(ticket);
+
+        ticketTransactionService.create(ticketTransactionRequest);
+    }
 }

@@ -87,6 +87,21 @@ public class TicketController {
         return ResponseEntity.ok(ResponseHelper.ok("Success"));
     }
 
+    @PutMapping(value = "/ticket/assign", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WebResponse<String>> assignTicket(@RequestBody String ticketId,
+            @RequestBody String userId) {
+        ticketService.assignTicket(ticketId, userId);
+        return ResponseEntity.ok(ResponseHelper.ok("Success"));
+    }
+
+    @PutMapping(value = "/ticket/process", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WebResponse<String>> processTicket(@RequestBody String ticketId) {
+        ticketService.processTicket(ticketId);
+        return ResponseEntity.ok(ResponseHelper.ok("Success"));
+    }
+
+
+
     // @GetMapping(value = "/ticket/report", produces = MediaType.APPLICATION_JSON_VALUE)
     // public ResponseEntity<WebResponse<File>> generateReport() throws JRException {
     // return ResponseEntity.ok(ResponseHelper.ok(ticketService.getReportTicket()));

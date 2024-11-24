@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import com.lawencon.ticket.model.request.PagingRequest;
 import com.lawencon.ticket.model.request.ticket.ChangeStatusTicketRequest;
 import com.lawencon.ticket.model.request.ticket.CreateTicketRequest;
+import com.lawencon.ticket.model.request.ticket.ProcessTicketRequest;
 import com.lawencon.ticket.model.request.ticket.UpdateTicketRequest;
 import com.lawencon.ticket.model.response.File;
 import com.lawencon.ticket.model.response.ticket.TicketResponse;
@@ -32,7 +33,7 @@ public interface TicketService {
 
     void assignTicket(String ticketId, String userId);
 
-    void processTicket(String ticketId);
+    void processTicket(ProcessTicketRequest request);
 
     // File getReportTicket() throws JRException;
 }

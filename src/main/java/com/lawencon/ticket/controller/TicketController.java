@@ -19,6 +19,7 @@ import com.lawencon.ticket.helper.ResponseHelper;
 import com.lawencon.ticket.model.request.PagingRequest;
 import com.lawencon.ticket.model.request.ticket.ChangeStatusTicketRequest;
 import com.lawencon.ticket.model.request.ticket.CreateTicketRequest;
+import com.lawencon.ticket.model.request.ticket.ProcessTicketRequest;
 import com.lawencon.ticket.model.request.ticket.UpdateTicketRequest;
 import com.lawencon.ticket.model.response.WebResponse;
 import com.lawencon.ticket.model.response.ticket.TicketResponse;
@@ -95,8 +96,9 @@ public class TicketController {
     }
 
     @PutMapping(value = "/ticket/process", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WebResponse<String>> processTicket(@RequestBody String ticketId) {
-        ticketService.processTicket(ticketId);
+    public ResponseEntity<WebResponse<String>> processTicket(
+            @RequestBody ProcessTicketRequest request) {
+        ticketService.processTicket(request);
         return ResponseEntity.ok(ResponseHelper.ok("Success"));
     }
 
